@@ -1,4 +1,4 @@
-🖼️ AI Image Generation SaaS Platform
+🖼️ GenArtify:AI Image Generation SaaS Platform
 
 A full-stack AI Image Generation SaaS that lets users generate images from text prompts, manage credits, and purchase additional credits using Razorpay.
 Built with production-level frontend & backend deployment, secure authentication, payment verification, and credit management.
