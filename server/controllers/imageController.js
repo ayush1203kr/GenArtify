@@ -32,14 +32,19 @@ export const generateImage = async (req, res) => {
     }
 
     // Step 1: Enhance the user's prompt using Gemini
-    // If Gemini fails, the original prompt is returned automatically.
     console.log(`[ImageGen] User ${userId} requested prompt: "${prompt}"`);
+
     const finalPrompt = await enhancePrompt(prompt);
+
+    console.log("[Gemini] Original Prompt:", prompt);
+    console.log("[Gemini] Enhanced Prompt:", finalPrompt);
 
     // Step 2: Generate image using the enhanced prompt
     const response = await axios.post(
       "https://clipdrop-api.co/text-to-image/v1",
-      { prompt: finalPrompt },
+      {
+        prompt: finalPrompt,
+      },
       {
         headers: {
           "x-api-key": process.env.CLIPDROP_API,
@@ -68,7 +73,7 @@ export const generateImage = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Image generation error:", err.message);
+    console.error("Image generation error:", err);
 
     return res.status(500).json({
       success: false,
