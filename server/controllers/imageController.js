@@ -1,5 +1,6 @@
 import axios from "axios";
 import userModel from "../models/userModel.js";
+import { enhancePrompt } from "../services/geminiService.js";
 
 export const generateImage = async (req, res) => {
   try {
@@ -30,10 +31,15 @@ export const generateImage = async (req, res) => {
       });
     }
 
-    // 🔥 Generate image FIRST
+    // Step 1: Enhance the user's prompt using Gemini
+    // If Gemini fails, the original prompt is returned automatically.
+    console.log(`[ImageGen] User ${userId} requested prompt: "${prompt}"`);
+    const finalPrompt = await enhancePrompt(prompt);
+
+    // Step 2: Generate image using the enhanced prompt
     const response = await axios.post(
       "https://clipdrop-api.co/text-to-image/v1",
-      { prompt },
+      { prompt: finalPrompt },
       {
         headers: {
           "x-api-key": process.env.CLIPDROP_API,
@@ -49,17 +55,16 @@ export const generateImage = async (req, res) => {
       });
     }
 
-    // 🔥 Deduct credit AFTER successful generation
+    // Deduct credit only after successful image generation
     user.creditBalance = user.creditBalance - 1;
     await user.save();
 
     const base64 = Buffer.from(response.data).toString("base64");
 
-    // 🔥 ALWAYS RETURN CREDIT
     return res.json({
       success: true,
       image: `data:image/png;base64,${base64}`,
-      creditBalance: user.creditBalance, // ✅ GUARANTEED
+      creditBalance: user.creditBalance,
     });
 
   } catch (err) {
@@ -71,4 +76,3 @@ export const generateImage = async (req, res) => {
     });
   }
 };
-
