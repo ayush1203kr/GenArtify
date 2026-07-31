@@ -31,15 +31,10 @@ export const generateImage = async (req, res) => {
       });
     }
 
-    // Step 1: Enhance the user's prompt using Gemini
-    console.log(`[ImageGen] User ${userId} requested prompt: "${prompt}"`);
-
+    // Enhance the user's prompt using Gemini
     const finalPrompt = await enhancePrompt(prompt);
 
-    console.log("[Gemini] Original Prompt:", prompt);
-    console.log("[Gemini] Enhanced Prompt:", finalPrompt);
-
-    // Step 2: Generate image using the enhanced prompt
+    // Generate image using the enhanced prompt
     const response = await axios.post(
       "https://clipdrop-api.co/text-to-image/v1",
       {
@@ -60,8 +55,8 @@ export const generateImage = async (req, res) => {
       });
     }
 
-    // Deduct credit only after successful image generation
-    user.creditBalance = user.creditBalance - 1;
+    // Deduct one credit only after successful image generation
+    user.creditBalance -= 1;
     await user.save();
 
     const base64 = Buffer.from(response.data).toString("base64");
